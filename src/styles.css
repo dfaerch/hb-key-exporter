@@ -1,0 +1,18 @@
+/* global css */
+
+/* Make the container a bit wider, default is 940*/
+.inner-main-wrapper {
+  width: 1020px;
+}
+
+#hb_extractor-container {
+  margin-bottom: 15px;
+}
+
+#hb_extractor-container details {
+  display: unset;
+}
+
+#hb_extractor-container .dtsb-titleRow {
+  display: none;
+}
