@@ -18,7 +18,7 @@ Userscript to assist in key management for Humble Bundle games.
 ## Installation
 
 1. Install [Violentmonkey](https://violentmonkey.github.io/) or similar browser extension.
-2. Get the [latest version](https://github.com/mrmarble/releases/latest/hb-key-exporter.user.js) from the releases page.
+2. Get the [latest version](https://github.com/MrMarble/hb-key-exporter/releases/latest/download/hb-key-exporter.user.js) from the releases page.
 3. Done
 
 ## Usage
