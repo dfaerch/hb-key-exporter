@@ -10,4 +10,6 @@
 // @author      process.env.AUTHOR
 // @description process.env.DESCRIPTION
 // @icon        https://www.google.com/s2/favicons?domain=humblebundle.com&sz=32
+// @downloadURL https://github.com/MrMarble/hb-key-exporter/releases/latest/download/hb-key-exporter.user.js
+// @homepageURL https://github.com/MrMarble/hb-key-exporter
 // ==/UserScript==
