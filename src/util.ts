@@ -15,8 +15,13 @@ export interface Order {
       is_expired: boolean
       is_gift: boolean
       key_type: string
+      keyindex: number
       redeemed_key_val?: string
       steam_app_id?: number
+      sold_out?: boolean
+      direct_redeem?: boolean
+      exclusive_countries?: string[]
+      disallowed_countries?: string[]
     }>
   }
 }
@@ -35,6 +40,7 @@ export interface Product {
   expiry_date?: string
   steam_app_id?: number
   created: string
+  keyindex?: number
 }
 
 const getCategory = (category: Order['product']['category']): Product['category'] => {
@@ -70,5 +76,6 @@ export const loadProducts = (): Product[] =>
         expiry_date: product.expiry_date || '',
         steam_app_id: product.steam_app_id,
         created: order.created,
+        keyindex: product.keyindex,
       }))
     )

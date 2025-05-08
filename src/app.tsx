@@ -12,17 +12,17 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
     dt = new DataTable<Product>(tableRef, {
       columnDefs: [
         {
-          targets: [5, 6],
+          targets: [6, 7],
           render: DataTable.render.date(),
         },
         {
-          targets: [7],
+          targets: [8],
           data: null,
           defaultContent: '',
         },
       ],
       order: {
-        idx: 5,
+        idx: 6,
         dir: 'desc',
       },
       columns: [
@@ -52,7 +52,8 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
           render: (data, _, row) =>
             `<a href="https://www.humblebundle.com/download?key=${row.category_id}" target="_blank">${data}</a>`,
         },
-        { title: 'Gift?', data: 'type', type: 'string-utf8' },
+        { title: 'Gift', data: 'type', type: 'string-utf8' },
+        { title: 'Revealed', data: (row: Product) => (!row.is_gift && row.redeemed_key_val) ? 'Yes' : 'No', type: 'string-utf8' },
         { title: 'Purchased', data: 'created', type: 'date' },
         { title: 'Exp. Date', data: 'expiry_date', type: 'date' },
         {
@@ -76,6 +77,23 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
                 `<a class="${styles.btn}" href="https://store.steampowered.com/account/registerkey?key=${row.redeemed_key_val}" target="_blank"><i class="hb hb-shopping-cart-light" title="Redeem"></i></a>`
               )
             }
+
+            if (!row.redeemed_key_val && !row.is_gift && !row.is_expired) {
+              actions.push(
+                `<button class="${styles.btn}" type="button" onclick="
+                    fetch('https://www.humblebundle.com/humbler/redeemkey', {
+                        'credentials': 'include',
+                        'headers': {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        },
+                        'body': 'keytype=${row.machine_name}&key=${row.category_id}&keyindex=${row.keyindex}',
+                        'method': 'POST',
+                        'mode': 'cors'
+                    }).then(res => res.json()).then(data => navigator.clipboard.writeText(data.key))
+                "><i class="hb hb-magic" title="Reveal and copy"></i></button>`
+              )
+            }
+
             return `<div class="${styles.row_actions}">${actions.join('')}</div>`
           },
         },
