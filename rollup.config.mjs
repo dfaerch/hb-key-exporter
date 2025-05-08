@@ -42,9 +42,20 @@ export default defineConfig(
           .replace('process.env.AUTHOR', packageJson.author.name)
           .replace('process.env.VERSION', packageJson.version)
           .replace('process.env.DESCRIPTION', packageJson.description)
+          .replace(
+            'process.env.DOWNLOAD_URL',
+            process.env.NODE_ENV === 'production' ? packageJson.downloadURL : ''
+          )
       ),
     ],
-    external: defineExternal(['lz-string', 'datatables.net-dt', 'solid-js', 'solid-js/web']),
+    external: defineExternal([
+      'lz-string',
+      'datatables.net-dt',
+      'solid-js',
+      'solid-js/web',
+      '@violentmonkey/ui',
+      '@violentmonkey/dom',
+    ]),
     output: {
       format: 'iife',
       file: `dist/${name}.user.js`,
@@ -53,6 +64,8 @@ export default defineConfig(
         'datatables.net-dt': 'DataTable',
         'solid-js': 'VM.solid',
         'solid-js/web': 'VM.solid.web',
+        '@violentmonkey/dom': 'VM',
+        '@violentmonkey/ui': 'VM',
       },
       indent: false,
     },
