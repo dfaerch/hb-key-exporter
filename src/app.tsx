@@ -1,6 +1,6 @@
 import { createSignal, onMount, type Accessor, type Setter } from 'solid-js'
 import DataTable, { type Api } from 'datatables.net-dt'
-import { loadProducts, type Product } from './util'
+import { loadProducts, redeem, type Product } from './util'
 
 // @ts-expect-error missing types
 import styles from './style.module.css'
@@ -140,17 +140,8 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
                     class: styles.btn,
                     type: 'button',
                     onclick: () => {
-                      fetch('https://www.humblebundle.com/humbler/redeemkey', {
-                        credentials: 'include',
-                        headers: {
-                          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        },
-                        body: `keytype=${row.machine_name}&key=${row.category_id}&keyindex=${row.keyindex}`,
-                        method: 'POST',
-                        mode: 'cors',
-                      })
-                        .then((res) => res.json())
-                        .then((data) => navigator.clipboard.writeText(data.key))
+                      redeem(row)
+                        .then((data) => navigator.clipboard.writeText(data))
                         .then(() => showToast('Key copied to clipboard'))
                     },
                   },
@@ -162,21 +153,8 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
                     class: styles.btn,
                     type: 'button',
                     onclick: () => {
-                      fetch('https://www.humblebundle.com/humbler/redeemkey', {
-                        credentials: 'include',
-                        headers: {
-                          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        },
-                        body: `keytype=${row.machine_name}&key=${row.category_id}&keyindex=${row.keyindex}&gift=true`,
-                        method: 'POST',
-                        mode: 'cors',
-                      })
-                        .then((res) => res.json())
-                        .then((data) =>
-                          navigator.clipboard.writeText(
-                            `https://www.humblebundle.com/gift?key=${data.giftkey}`
-                          )
-                        )
+                      redeem(row, true)
+                        .then((link) => navigator.clipboard.writeText(link))
                         .then(() => showToast('Link copied to clipboard'))
                     },
                   },
@@ -205,10 +183,13 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
 }
 
 function Actions() {
-  const [exportType, setExportType] = createSignal('asf')
+  const [exportType, setExportType] = createSignal('')
   const [filtered, setFiltered] = createSignal(false)
+  const [claim, setClaim] = createSignal(false)
+  const [claimType, setClaimType] = createSignal('key')
+  const [exporting, setExporting] = createSignal(false)
 
-  const exportASF = (products: Product[] | Api<Product>) => {
+  const exportASF = (products: Product[]) => {
     const keys = products
       .filter(
         (product) =>
@@ -223,7 +204,7 @@ function Actions() {
     navigator.clipboard.writeText(keys)
   }
 
-  const exportKeys = (products: Product[] | Api<Product>) => {
+  const exportKeys = (products: Product[]) => {
     const keys = products
       .filter((product) => !product.is_gift && product.redeemed_key_val)
       .map((product) => product.redeemed_key_val)
@@ -232,7 +213,7 @@ function Actions() {
     navigator.clipboard.writeText(keys)
   }
 
-  const exportCSV = (products: Product[] | Api<Product>) => {
+  const exportCSV = (products: Product[]) => {
     const header = Object.keys(products[0])
     const csv = products
       .map((product) => {
@@ -243,8 +224,24 @@ function Actions() {
     navigator.clipboard.writeText(header + '\n' + csv)
   }
 
-  const exportToClipboard = () => {
-    const toExport = filtered() ? dt.rows({ search: 'applied' }).data() : hbProducts
+  const exportToClipboard = async () => {
+    setExporting(true)
+    const toExport = filtered()
+      ? (dt.rows({ search: 'applied' }).data().toArray() as Product[])
+      : hbProducts
+
+    if (claim()) {
+      for (const product of toExport) {
+        if (product.redeemed_key_val) {
+          continue
+        }
+        try {
+          product.redeemed_key_val = await redeem(product, claimType() === 'gift')
+        } catch (e) {
+          console.error('Error redeeming product:', product.machine_name, e)
+        }
+      }
+    }
 
     switch (exportType()) {
       case 'asf':
@@ -257,10 +254,36 @@ function Actions() {
         exportCSV(toExport)
         break
     }
+    setExporting(false)
+    showToast('Exported to clipboard')
   }
 
   return (
     <div class={styles.actions}>
+      <label for="claim">
+        <input
+          type="checkbox"
+          id="claim"
+          name="claim"
+          onChange={(e) => setClaim(e.target.checked)}
+        />
+        Claim unredeemed games
+      </label>
+      <select
+        name="claimType"
+        id="claimType"
+        class={styles.select}
+        classList={{ hidden: !claim() }}
+        onChange={(e) => setClaimType(e.target.value)}
+      >
+        <option value="" disabled>
+          What to claim
+        </option>
+        <option value="key" selected>
+          Key
+        </option>
+        <option value="gift">Gift link</option>
+      </select>
       <label for="filtered">
         <input
           type="checkbox"
@@ -274,7 +297,7 @@ function Actions() {
         name="export"
         id="export"
         class={styles.select}
-        onChange={(e) => setExportType(e.currentTarget.value)}
+        onChange={(e) => setExportType(e.target.value)}
       >
         <option value="" disabled selected>
           Export format
@@ -287,9 +310,9 @@ function Actions() {
         type="button"
         class="primary-button"
         onClick={exportToClipboard}
-        disabled={!exportType()}
+        disabled={!exportType() || exporting()}
       >
-        Export
+        {exporting() ? <i class="hb hb-spin hb-spinner"></i> : 'Export'}
       </button>
     </div>
   )

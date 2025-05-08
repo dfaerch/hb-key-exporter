@@ -79,3 +79,22 @@ export const loadProducts = (): Product[] =>
         keyindex: product.keyindex,
       }))
     )
+
+export const redeem = async (
+  product: Pick<Product, 'machine_name' | 'category_id' | 'keyindex'>,
+  gift: boolean = false
+) => {
+  console.log('Redeeming product:', product.machine_name)
+  const data = await fetch('https://www.humblebundle.com/humbler/redeemkey', {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    },
+    body: `keytype=${product.machine_name}&key=${product.category_id}&keyindex=${product.keyindex}${gift ? '&gift=true' : ''}`,
+    method: 'POST',
+    mode: 'cors',
+  }).then((res) => res.json())
+  console.log('Redeem response:', data)
+
+  return gift ? `https://www.humblebundle.com/gift?key=${data.giftkey}` : (data.key as string)
+}
