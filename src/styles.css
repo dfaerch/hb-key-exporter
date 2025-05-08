@@ -1,8 +1,9 @@
 /* global css */
 
 /* Make the container a bit wider, default is 940*/
+.base-main-wrapper,
 .inner-main-wrapper {
-  width: 1020px;
+  width: 1020px !important;
 }
 
 #hb_extractor-container {
