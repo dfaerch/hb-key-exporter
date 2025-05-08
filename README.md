@@ -18,6 +18,7 @@ Userscript to assist in key management for Humble Bundle games.
   - TXT (`<key>`)
 - Reveal hidden keys
 - Create Gift links
+- Bulk claim keys!
 
 ## Installation
 
