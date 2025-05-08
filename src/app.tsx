@@ -306,19 +306,6 @@ function Refresh({ setProducs }: { setProducs: Setter<Product[]> }) {
 export function App() {
   const [products, setProducts] = createSignal(hbProducts)
 
-  onMount(() => {
-    // Listen to custom events
-    window.addEventListener('hb:clipboard', (e) => {
-      const {
-        detail: { data, msg },
-      } = e as CustomEvent<{ data: string; msg: string }>
-      if (data) {
-        navigator.clipboard.writeText(data)
-        showToast(msg || 'Copied to clipboard')
-      }
-    })
-  })
-
   return (
     <details>
       <summary>
