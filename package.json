@@ -4,6 +4,7 @@
   "description": "Userscript that aids in exporting Humble Bundle keys from the Humble Bundle website.",
   "type": "module",
   "private": true,
+  "downloadURL": "https://github.com/MrMarble/hb-key-exporter/releases/latest/download/hb-key-exporter.user.js",
   "engines": {
     "node": ">=20"
   },
@@ -63,6 +64,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.27.1",
+    "@violentmonkey/dom": "^2.2.1",
+    "@violentmonkey/ui": "^0.7.9",
     "solid-js": "^1.9.6"
   }
 }

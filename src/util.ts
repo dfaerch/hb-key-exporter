@@ -33,7 +33,7 @@ export interface Product {
   category_human_name: string
   human_name: string
   key_type: string
-  type: 'Key' | 'Gift'
+  type: 'Key' | 'Gift' | '-'
   redeemed_key_val: string
   is_gift: boolean
   is_expired: boolean
@@ -69,7 +69,7 @@ export const loadProducts = (): Product[] =>
         category_human_name: order.product.human_name,
         human_name: product.human_name,
         key_type: product.key_type,
-        type: product.is_gift ? 'Gift' : 'Key',
+        type: product.is_gift ? 'Gift' : product.redeemed_key_val ? 'Key' : '-',
         redeemed_key_val: product.redeemed_key_val || '',
         is_gift: product.is_gift || false,
         is_expired: product.is_expired || false,

@@ -1,9 +1,11 @@
 import { createSignal, onMount, type Accessor, type Setter } from 'solid-js'
 import DataTable, { type Api } from 'datatables.net-dt'
 import { loadProducts, type Product } from './util'
+
 // @ts-expect-error missing types
 import styles from './style.module.css'
-
+import { showToast } from '@violentmonkey/ui'
+import { hm } from '@violentmonkey/dom'
 const hbProducts: Product[] = loadProducts()
 let dt: Api<Product>
 export function Table({ products }: { products: Accessor<Product[]> }) {
@@ -30,9 +32,15 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
           title: 'Type',
           data: 'key_type',
           type: 'html-utf8',
-          render: (data) => `<i title="${data}" class="hb hb-key hb-${data}">
-          <span class="hidden">${data}</span>
-          </i>`,
+          render: (data, type, row) =>
+            hm(
+              'i',
+              {
+                class: `hb hb-key hb-${data}`,
+                onclick: () => showToast(JSON.stringify(row, null, 2)),
+              },
+              hm('span', { class: 'hidden', innerText: data })
+            ),
           className: styles.platform,
         },
         {
@@ -41,7 +49,11 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
           type: 'html-utf8',
           render: (data, _, row) =>
             row.steam_app_id
-              ? `<a href="https://store.steampowered.com/app/${row.steam_app_id}" target="_blank">${data}</a>`
+              ? hm('a', {
+                  href: `https://store.steampowered.com/app/${row.steam_app_id}`,
+                  target: '_blank',
+                  innerText: data,
+                })
               : data,
         },
         { title: 'Category', data: 'category', type: 'string-utf8' },
@@ -50,10 +62,18 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
           data: 'category_human_name',
           type: 'html-utf8',
           render: (data, _, row) =>
-            `<a href="https://www.humblebundle.com/download?key=${row.category_id}" target="_blank">${data}</a>`,
+            hm('a', {
+              href: `https://www.humblebundle.com/download?key=${row.category_id}`,
+              target: '_blank',
+              innerText: data,
+            }),
         },
         { title: 'Gift', data: 'type', type: 'string-utf8' },
-        { title: 'Revealed', data: (row: Product) => (!row.is_gift && row.redeemed_key_val) ? 'Yes' : 'No', type: 'string-utf8' },
+        {
+          title: 'Revealed',
+          data: (row: Product) => (row.is_gift || row.redeemed_key_val ? 'Yes' : 'No'),
+          type: 'string-utf8',
+        },
         { title: 'Purchased', data: 'created', type: 'date' },
         { title: 'Exp. Date', data: 'expiry_date', type: 'date' },
         {
@@ -62,9 +82,21 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
           searchable: false,
           data: (row: Product) => {
             const actions = []
-            if (row.redeemed_key_val && !row.is_gift) {
+            if (row.redeemed_key_val) {
               actions.push(
-                `<button class="${styles.btn}" type="button" onclick="navigator.clipboard.writeText('${row.redeemed_key_val}')"><i class="hb hb-clipboard" title="Copy"></i></button>`
+                hm(
+                  'button',
+                  {
+                    class: styles.btn,
+                    title: 'Copy to clipboard',
+                    type: 'button',
+                    onclick: () => {
+                      navigator.clipboard.writeText(row.redeemed_key_val)
+                      showToast('Copied to clipboard')
+                    },
+                  },
+                  hm('i', { class: 'hb hb-key hb-clipboard' })
+                )
               )
             }
             if (
@@ -74,27 +106,86 @@ export function Table({ products }: { products: Accessor<Product[]> }) {
               row.key_type === 'steam'
             ) {
               actions.push(
-                `<a class="${styles.btn}" href="https://store.steampowered.com/account/registerkey?key=${row.redeemed_key_val}" target="_blank"><i class="hb hb-shopping-cart-light" title="Redeem"></i></a>`
+                hm(
+                  'a',
+                  {
+                    class: styles.btn,
+                    href: `https://store.steampowered.com/account/registerkey?key=${row.redeemed_key_val}`,
+                    target: '_blank',
+                  },
+                  hm('i', { class: 'hb hb-shopping-cart-light', title: 'Redeem' })
+                )
+              )
+            }
+
+            if (row.redeemed_key_val && row.is_gift && !row.is_expired) {
+              actions.push(
+                hm(
+                  'a',
+                  {
+                    class: styles.btn,
+                    href: row.redeemed_key_val,
+                    target: '_blank',
+                  },
+                  hm('i', { class: 'hb hb-shopping-cart-light', title: 'Redeem' })
+                )
               )
             }
 
             if (!row.redeemed_key_val && !row.is_gift && !row.is_expired) {
               actions.push(
-                `<button class="${styles.btn}" type="button" onclick="
-                    fetch('https://www.humblebundle.com/humbler/redeemkey', {
-                        'credentials': 'include',
-                        'headers': {
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                hm(
+                  'button',
+                  {
+                    class: styles.btn,
+                    type: 'button',
+                    onclick: () => {
+                      fetch('https://www.humblebundle.com/humbler/redeemkey', {
+                        credentials: 'include',
+                        headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                         },
-                        'body': 'keytype=${row.machine_name}&key=${row.category_id}&keyindex=${row.keyindex}',
-                        'method': 'POST',
-                        'mode': 'cors'
-                    }).then(res => res.json()).then(data => navigator.clipboard.writeText(data.key))
-                "><i class="hb hb-magic" title="Reveal and copy"></i></button>`
+                        body: `keytype=${row.machine_name}&key=${row.category_id}&keyindex=${row.keyindex}`,
+                        method: 'POST',
+                        mode: 'cors',
+                      })
+                        .then((res) => res.json())
+                        .then((data) => navigator.clipboard.writeText(data.key))
+                        .then(() => showToast('Key copied to clipboard'))
+                    },
+                  },
+                  hm('i', { class: 'hb hb-magic', title: 'Reveal' })
+                ),
+                hm(
+                  'button',
+                  {
+                    class: styles.btn,
+                    type: 'button',
+                    onclick: () => {
+                      fetch('https://www.humblebundle.com/humbler/redeemkey', {
+                        credentials: 'include',
+                        headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        },
+                        body: `keytype=${row.machine_name}&key=${row.category_id}&keyindex=${row.keyindex}&gift=true`,
+                        method: 'POST',
+                        mode: 'cors',
+                      })
+                        .then((res) => res.json())
+                        .then((data) =>
+                          navigator.clipboard.writeText(
+                            `https://www.humblebundle.com/gift?key=${data.giftkey}`
+                          )
+                        )
+                        .then(() => showToast('Link copied to clipboard'))
+                    },
+                  },
+                  hm('i', { class: 'hb hb-gift', title: 'Create gift link' })
+                )
               )
             }
 
-            return `<div class="${styles.row_actions}">${actions.join('')}</div>`
+            return hm('div', { class: styles.row_actions }, actions)
           },
         },
       ],
@@ -214,6 +305,19 @@ function Refresh({ setProducs }: { setProducs: Setter<Product[]> }) {
 
 export function App() {
   const [products, setProducts] = createSignal(hbProducts)
+
+  onMount(() => {
+    // Listen to custom events
+    window.addEventListener('hb:clipboard', (e) => {
+      const {
+        detail: { data, msg },
+      } = e as CustomEvent<{ data: string; msg: string }>
+      if (data) {
+        navigator.clipboard.writeText(data)
+        showToast(msg || 'Copied to clipboard')
+      }
+    })
+  })
 
   return (
     <details>

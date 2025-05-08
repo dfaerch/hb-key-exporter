@@ -1,4 +1,5 @@
 # HumbleBundle Key Exporter
+
 ![License](https://img.shields.io/badge/License-MIT-blue)
 ![GitHub Release](https://img.shields.io/github/v/release/mrmarble/hb-key-exporter)
 ![GitHub Downloads](https://img.shields.io/github/downloads/mrmarble/hb-key-exporter/total)
@@ -8,13 +9,15 @@ Userscript to assist in key management for Humble Bundle games.
 ![](/assets/image.png)
 
 ## Features
+
 - Easily view and copy keys
 - Advanced filtering options
 - Export in various formats:
   - CSV (all data)
   - ASF (`<key> <name>`)
   - TXT (`<key>`)
-
+- Reveal hidden keys
+- Create Gift links
 
 ## Installation
 
