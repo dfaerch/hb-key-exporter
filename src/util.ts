@@ -63,19 +63,19 @@ export const loadProducts = (): Product[] =>
     .filter((order) => order?.tpkd_dict?.all_tpks?.length)
     .flatMap((order) =>
       order.tpkd_dict.all_tpks.map((product) => ({
-        machine_name: product.machine_name,
+        machine_name: product.machine_name || '-',
         category: getCategory(order.product.category),
         category_id: order.gamekey,
-        category_human_name: order.product.human_name,
-        human_name: product.human_name,
-        key_type: product.key_type,
+        category_human_name: order.product.human_name || '-',
+        human_name: product.human_name || product.machine_name || '-',
+        key_type: product.key_type || '-',
         type: product.is_gift ? 'Gift' : product.redeemed_key_val ? 'Key' : '-',
         redeemed_key_val: product.redeemed_key_val || '',
         is_gift: product.is_gift || false,
         is_expired: product.is_expired || false,
         expiry_date: product.expiry_date || '',
         steam_app_id: product.steam_app_id,
-        created: order.created,
+        created: order.created || '',
         keyindex: product.keyindex,
       }))
     )
