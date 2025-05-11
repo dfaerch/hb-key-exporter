@@ -1,3 +1,17 @@
+# [0.3.0](https://github.com/MrMarble/hb-key-exporter/compare/v0.2.1...0.3.0) (2025-05-11)
+
+
+### Bug Fixes
+
+* set container to max with ([b1404bd](https://github.com/MrMarble/hb-key-exporter/commit/b1404bd41b4b6d234789abfba237211153ceb4a1))
+
+
+### Features
+
+* show owned apps ([82ecc2e](https://github.com/MrMarble/hb-key-exporter/commit/82ecc2e35c9394ac4171c704425205cdbc707839))
+
+
+
 ## [0.2.1](https://github.com/MrMarble/hb-key-exporter/compare/v0.2.0...v0.2.1) (2025-05-09)
 
 
