@@ -56,29 +56,32 @@ const getCategory = (category: Order['product']['category']): Product['category'
   }
 }
 
-export const loadProducts = (): Product[] =>
-  Object.keys(localStorage)
-    .filter((key) => key.startsWith('v2|'))
-    .map((key) => JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(key))) as Order)
-    .filter((order) => order?.tpkd_dict?.all_tpks?.length)
-    .flatMap((order) =>
-      order.tpkd_dict.all_tpks.map((product) => ({
-        machine_name: product.machine_name || '-',
-        category: getCategory(order.product.category),
-        category_id: order.gamekey,
-        category_human_name: order.product.human_name || '-',
-        human_name: product.human_name || product.machine_name || '-',
-        key_type: product.key_type || '-',
-        type: product.is_gift ? 'Gift' : product.redeemed_key_val ? 'Key' : '-',
-        redeemed_key_val: product.redeemed_key_val || '',
-        is_gift: product.is_gift || false,
-        is_expired: product.is_expired || false,
-        expiry_date: product.expiry_date || '',
-        steam_app_id: product.steam_app_id,
-        created: order.created || '',
-        keyindex: product.keyindex,
-      }))
-    )
+let hbProducts: Product[] = []
+export const loadProducts = (refresh: boolean = false): Product[] =>
+  !refresh && hbProducts.length
+    ? hbProducts
+    : (hbProducts = Object.keys(localStorage)
+        .filter((key) => key.startsWith('v2|'))
+        .map((key) => JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(key))) as Order)
+        .filter((order) => order?.tpkd_dict?.all_tpks?.length)
+        .flatMap((order) =>
+          order.tpkd_dict.all_tpks.map((product) => ({
+            machine_name: product.machine_name || '-',
+            category: getCategory(order.product.category),
+            category_id: order.gamekey,
+            category_human_name: order.product.human_name || '-',
+            human_name: product.human_name || product.machine_name || '-',
+            key_type: product.key_type || '-',
+            type: product.is_gift ? 'Gift' : product.redeemed_key_val ? 'Key' : '-',
+            redeemed_key_val: product.redeemed_key_val || '',
+            is_gift: product.is_gift || false,
+            is_expired: product.is_expired || false,
+            expiry_date: product.expiry_date || '',
+            steam_app_id: product.steam_app_id,
+            created: order.created || '',
+            keyindex: product.keyindex,
+          }))
+        ))
 
 export const redeem = async (
   product: Pick<Product, 'machine_name' | 'category_id' | 'keyindex'>,
