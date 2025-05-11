@@ -1,9 +1,10 @@
 import { createSignal, type Accessor } from 'solid-js'
-import { loadProducts, redeem, type Product } from '../util'
+import { redeem, type Product } from '../util'
 import { showToast } from '@violentmonkey/ui'
 // @ts-expect-error missing types
 import styles from '../style.module.css'
 import type { Api } from 'datatables.net-dt'
+
 export function Actions({ dt }: { dt: Accessor<Api<Product>> }) {
   const [exportType, setExportType] = createSignal('')
   const [filtered, setFiltered] = createSignal(false)
@@ -48,9 +49,10 @@ export function Actions({ dt }: { dt: Accessor<Api<Product>> }) {
 
   const exportToClipboard = async () => {
     setExporting(true)
-    const toExport = filtered()
-      ? (dt().rows({ search: 'applied' }).data().toArray() as Product[])
-      : loadProducts()
+    const toExport = dt()
+      .rows({ search: filtered() ? 'applied' : 'none' })
+      .data()
+      .toArray() as Product[]
 
     if (claim()) {
       for (const product of toExport) {

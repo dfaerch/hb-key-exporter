@@ -1,4 +1,4 @@
-import { onMount, type Accessor, type Setter } from 'solid-js'
+import { onMount, type Setter } from 'solid-js'
 import { redeem, type Product } from '../util'
 import DataTable, { type Api } from 'datatables.net-dt'
 import { hm } from '@violentmonkey/dom'
@@ -6,31 +6,26 @@ import { hm } from '@violentmonkey/dom'
 import styles from '../style.module.css'
 import { showToast } from '@violentmonkey/ui'
 
-export function Table({
-  products,
-  setDt,
-}: {
-  products: Accessor<Product[]>
-  setDt: Setter<Api<Product>>
-}) {
+export function Table({ products, setDt }: { products: Product[]; setDt: Setter<Api<Product>> }) {
   let tableRef!: HTMLTableElement
   onMount(() => {
+    console.debug('Mounting table with', products.length, 'products')
     setDt(
       () =>
         new DataTable<Product>(tableRef, {
           columnDefs: [
             {
-              targets: [6, 7],
+              targets: [7, 8],
               render: DataTable.render.date(),
             },
             {
-              targets: [8],
+              targets: [9],
               data: null,
               defaultContent: '',
             },
           ],
           order: {
-            idx: 6,
+            idx: 7,
             dir: 'desc',
           },
           columns: [
@@ -80,6 +75,7 @@ export function Table({
               data: (row: Product) => (row.is_gift || row.redeemed_key_val ? 'Yes' : 'No'),
               type: 'string-utf8',
             },
+            { title: 'Owned', data: 'owned', type: 'string-utf8' },
             { title: 'Purchased', data: 'created', type: 'date' },
             { title: 'Exp. Date', data: 'expiry_date', type: 'date' },
             {
@@ -173,7 +169,7 @@ export function Table({
               },
             },
           ],
-          data: products(),
+          data: products,
           layout: {
             top1: 'searchBuilder',
           },
@@ -185,6 +181,6 @@ export function Table({
         })
     )
   })
-
+  console.debug('Table Loaded')
   return <table ref={tableRef} id="hb_extractor-table" class="display compact"></table>
 }

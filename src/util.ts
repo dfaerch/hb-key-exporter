@@ -37,6 +37,7 @@ export interface Product {
   redeemed_key_val: string
   is_gift: boolean
   is_expired: boolean
+  owned: 'Yes' | 'No' | '-'
   expiry_date?: string
   steam_app_id?: number
   created: string
@@ -56,32 +57,32 @@ const getCategory = (category: Order['product']['category']): Product['category'
   }
 }
 
-let hbProducts: Product[] = []
-export const loadProducts = (refresh: boolean = false): Product[] =>
-  !refresh && hbProducts.length
-    ? hbProducts
-    : (hbProducts = Object.keys(localStorage)
-        .filter((key) => key.startsWith('v2|'))
-        .map((key) => JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(key))) as Order)
-        .filter((order) => order?.tpkd_dict?.all_tpks?.length)
-        .flatMap((order) =>
-          order.tpkd_dict.all_tpks.map((product) => ({
-            machine_name: product.machine_name || '-',
-            category: getCategory(order.product.category),
-            category_id: order.gamekey,
-            category_human_name: order.product.human_name || '-',
-            human_name: product.human_name || product.machine_name || '-',
-            key_type: product.key_type || '-',
-            type: product.is_gift ? 'Gift' : product.redeemed_key_val ? 'Key' : '-',
-            redeemed_key_val: product.redeemed_key_val || '',
-            is_gift: product.is_gift || false,
-            is_expired: product.is_expired || false,
-            expiry_date: product.expiry_date || '',
-            steam_app_id: product.steam_app_id,
-            created: order.created || '',
-            keyindex: product.keyindex,
-          }))
-        ))
+export const loadOrders = () =>
+  Object.keys(localStorage)
+    .filter((key) => key.startsWith('v2|'))
+    .map((key) => JSON.parse(LZString.decompressFromUTF16(localStorage.getItem(key))) as Order)
+    .filter((order) => order?.tpkd_dict?.all_tpks?.length)
+
+export const getProducts = (orders: Order[], ownedApps: number[]): Product[] =>
+  orders.flatMap((order) =>
+    order.tpkd_dict.all_tpks.map((product) => ({
+      machine_name: product.machine_name || '-',
+      category: getCategory(order.product.category),
+      category_id: order.gamekey,
+      category_human_name: order.product.human_name || '-',
+      human_name: product.human_name || product.machine_name || '-',
+      key_type: product.key_type || '-',
+      type: product.is_gift ? 'Gift' : product.redeemed_key_val ? 'Key' : '-',
+      redeemed_key_val: product.redeemed_key_val || '',
+      is_gift: product.is_gift || false,
+      is_expired: product.is_expired || false,
+      expiry_date: product.expiry_date || '',
+      steam_app_id: product.steam_app_id,
+      created: order.created || '',
+      keyindex: product.keyindex,
+      owned: product.steam_app_id ? (ownedApps.includes(product.steam_app_id) ? 'Yes' : 'No') : '-',
+    }))
+  )
 
 export const redeem = async (
   product: Pick<Product, 'machine_name' | 'category_id' | 'keyindex'>,
@@ -100,4 +101,45 @@ export const redeem = async (
   console.log('Redeem response:', data)
 
   return gift ? `https://www.humblebundle.com/gift?key=${data.giftkey}` : (data.key as string)
+}
+
+const fetchOwnedApps = async (): Promise<Array<number>> =>
+  new Promise<VMScriptResponseObject<{ rgOwnedPackages: number[]; rgOwnedApps: number[] }>>(
+    (resolve) =>
+      GM_xmlhttpRequest({
+        url: 'https://store.steampowered.com/dynamicstore/userdata',
+        method: 'GET',
+        timeout: 5000,
+        responseType: 'json',
+        onload: resolve,
+      })
+  )
+    .then((data) =>
+      (data?.response?.rgOwnedPackages || []).concat(data?.response?.rgOwnedApps || [])
+    )
+    .catch(() => [])
+
+let ownedApps: Array<number> = []
+export const loadOwnedApps = async (refresh: boolean = false) => {
+  if (!refresh && ownedApps.length) {
+    console.debug('Using cached owned apps')
+    return ownedApps
+  }
+  console.debug('Fetching owned apps from Steam')
+  // Try to load from localStorage first
+  const storedApps = localStorage.getItem('hb-key-exporter-ownedApps')
+  if (storedApps) {
+    return JSON.parse(LZString.decompressFromUTF16(storedApps)) as Array<number>
+  }
+  // If not found, fetch from Steam
+  ownedApps = await fetchOwnedApps()
+  if (!ownedApps) {
+    return []
+  }
+  // Store the result in localStorage for future use
+  localStorage.setItem(
+    'hb-key-exporter-ownedApps',
+    LZString.compressToUTF16(JSON.stringify(ownedApps))
+  )
+  return ownedApps
 }
