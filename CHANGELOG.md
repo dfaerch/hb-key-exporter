@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/MrMarble/hb-key-exporter/compare/v0.3.0...v0.4.0) (2025-05-31)
+
+
+### Features
+
+* **cvs:** allow setting a custom separator ([#2](https://github.com/MrMarble/hb-key-exporter/issues/2)) ([30aaff5](https://github.com/MrMarble/hb-key-exporter/commit/30aaff5848797c15c40e6e55599412c366049324))
+
+
+
 # [0.3.0](https://github.com/MrMarble/hb-key-exporter/compare/v0.2.1...0.3.0) (2025-05-11)
 
 
