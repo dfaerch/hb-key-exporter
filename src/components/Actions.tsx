@@ -48,6 +48,10 @@ export function Actions({ dt }: { dt: Accessor<Api<Product>> }) {
     navigator.clipboard.writeText(header.join(separator()) + '\n' + csv)
   }
 
+  const exportJSON = (products: Product[]) => {
+    navigator.clipboard.writeText(JSON.stringify(products, null, 2))
+  }
+
   const exportToClipboard = async () => {
     setExporting(true)
     const toExport = dt()
@@ -77,6 +81,9 @@ export function Actions({ dt }: { dt: Accessor<Api<Product>> }) {
         break
       case 'csv':
         exportCSV(toExport)
+        break
+      case 'json':
+        exportJSON(toExport)
         break
     }
     setExporting(false)
@@ -145,6 +152,7 @@ export function Actions({ dt }: { dt: Accessor<Api<Product>> }) {
           <option value="asf">ASF</option>
           <option value="keys">Keys</option>
           <option value="csv">CSV</option>
+          <option value="json">JSON</option>
         </select>
         <button
           type="button"
