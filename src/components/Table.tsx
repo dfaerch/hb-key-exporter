@@ -171,10 +171,24 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
                       {
                         class: styles.btn,
                         type: 'button',
-                        onclick: () => {
-                          redeem(row)
-                            .then((data) => navigator.clipboard.writeText(data))
-                            .then(() => showToast('Key copied to clipboard'))
+                        onclick: async () => {
+                          try {
+                            const data = await redeem(row)
+                            if (!data.success) {
+                              return showToast(data.error_msg || 'Redeem failed', {
+                                type: 'error',
+                                duration: 3200,
+                              })
+                            }
+                            if (!data.link) {
+                              return showToast('No key received', { type: 'error', duration: 3200 })
+                            }
+
+                            await navigator.clipboard.writeText(data.link)
+                            showToast('Key copied to clipboard')
+                          } catch {
+                            showToast('Error retrieving key', { type: 'error', duration: 3200 })
+                          }
                         },
                       },
                       hm('i', { class: 'hb hb-magic', title: 'Reveal' })
@@ -184,10 +198,27 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
                       {
                         class: styles.btn,
                         type: 'button',
-                        onclick: () => {
-                          redeem(row, true)
-                            .then((link) => navigator.clipboard.writeText(link))
-                            .then(() => showToast('Link copied to clipboard'))
+                        onclick: async () => {
+                          try {
+                            const data = await redeem(row, true)
+                            if (!data.success) {
+                              return showToast(data.error_msg || 'Failed to create gift link', {
+                                type: 'error',
+                                duration: 5000,
+                              })
+                            }
+                            if (!data.gift_link) {
+                              return showToast('No gift link received', {
+                                type: 'error',
+                                duration: 5000,
+                              })
+                            }
+
+                            await navigator.clipboard.writeText(data.gift_link)
+                            showToast('Link copied to clipboard')
+                          } catch {
+                            showToast('Error creating gift link', { type: 'error', duration: 5000 })
+                          }
                         },
                       },
                       hm('i', { class: 'hb hb-gift', title: 'Create gift link' })

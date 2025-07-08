@@ -38,3 +38,12 @@ tr.expired {
   display: flex;
   gap: 2px;
 }
+
+.logBlock {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f9dada;
+  border: 1px solid #c88;
+  border-radius: 4px;
+  color: #600;
+}

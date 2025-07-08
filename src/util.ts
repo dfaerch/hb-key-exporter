@@ -100,7 +100,12 @@ export const redeem = async (
   }).then((res) => res.json())
   console.log('Redeem response:', data)
 
-  return gift ? `https://www.humblebundle.com/gift?key=${data.giftkey}` : (data.key as string)
+  // Add gift link
+  if (data.success && gift) {
+    data.gift_link = `https://www.humblebundle.com/gift?key=${data.giftkey}`
+  }
+
+  return data
 }
 
 const fetchOwnedApps = async (): Promise<Array<number>> =>

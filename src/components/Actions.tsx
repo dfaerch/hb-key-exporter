@@ -4,6 +4,20 @@ import { showToast } from '@violentmonkey/ui'
 // @ts-expect-error missing types
 import styles from '../style.module.css'
 import type { Api } from 'datatables.net-dt'
+const [log, setLog] = createSignal<Record<string, string[]>>({})
+const [logVisible, setLogVisible] = createSignal(false)
+
+const appendLog = (errorMsg: string, productName: string) => {
+  setLog((prev) => {
+    const next = { ...prev }
+    if (!next[errorMsg]) {
+      next[errorMsg] = []
+    }
+    next[errorMsg].push(productName)
+    return next
+  })
+  setLogVisible(true)
+}
 
 export function Actions({ dt }: { dt: Accessor<Api<Product>> }) {
   const [exportType, setExportType] = createSignal('')
@@ -65,9 +79,21 @@ export function Actions({ dt }: { dt: Accessor<Api<Product>> }) {
           continue
         }
         try {
-          product.redeemed_key_val = await redeem(product, claimType() === 'gift')
+          const data = await redeem(product, claimType() === 'gift')
+
+          if (!data.success) {
+            appendLog(data.error_msg || data.error || 'Unknown error', product.human_name)
+            continue
+          }
+
+          if (claimType() === 'gift') {
+            product.redeemed_key_val = data.gift_link
+          } else {
+            product.redeemed_key_val = data.key
+          }
         } catch (e) {
           console.error('Error redeeming product:', product.machine_name, e)
+          appendLog(`Request failed (${String(e)})`, product.human_name)
         }
       }
     }
@@ -163,6 +189,33 @@ export function Actions({ dt }: { dt: Accessor<Api<Product>> }) {
           {exporting() ? <i class="hb hb-spin hb-spinner"></i> : 'Export'}
         </button>
       </div>
+
+      {/* Log display */}
+      {logVisible() && Object.keys(log()).length > 0 && (
+        <div class={styles.logBlock}>
+          <h3>Errors during redeem:</h3>
+          <ul>
+            {Object.entries(log()).map(([error, productNames]) => (
+              <li>
+                <strong>{error}:</strong>
+                <ul>
+                  {productNames.map((name) => (
+                    <li>{name}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={() => {
+              setLog({})
+              setLogVisible(false)
+            }}
+          >
+            Close
+          </button>
+        </div>
+      )}
     </>
   )
 }
