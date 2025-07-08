@@ -181,6 +181,12 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
                               })
                             }
                             if (!data.link) {
+                              if (data.giftkey) {
+                                return showToast(
+                                  'Items has already been gifted. Cannot redeem key.',
+                                  { type: 'error', duration: 3200 }
+                                )
+                              }
                               return showToast('No key received', { type: 'error', duration: 3200 })
                             }
 
