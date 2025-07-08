@@ -15,17 +15,17 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
         new DataTable<Product>(tableRef, {
           columnDefs: [
             {
-              targets: [7, 8], // Purchased and Exp. Date
+              targets: ['purchased:name', 'expiry:name'],
               render: DataTable.render.date(),
             },
             {
-              targets: [9], // empty actions column
+              targets: 'actions:name',
               data: null,
               defaultContent: '',
             },
           ],
           order: {
-            idx: 7,
+            name: 'purchased',
             dir: 'desc',
           },
           columns: [
@@ -105,10 +105,11 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
               type: 'num',
             },
             { title: 'Owned', data: 'owned', type: 'string-utf8' },
-            { title: 'Purchased', data: 'created', type: 'date' },
-            { title: 'Exp. Date', data: 'expiry_date', type: 'date' },
+            { title: 'Purchased', name: 'purchased', data: 'created', type: 'date' },
+            { title: 'Exp. Date', name: 'expiry', data: 'expiry_date', type: 'date' },
             {
               title: '',
+              name: 'actions',
               orderable: false,
               searchable: false,
               data: (row: Product) => {
