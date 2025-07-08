@@ -126,13 +126,18 @@ export const loadOwnedApps = async (refresh: boolean = false) => {
     return ownedApps
   }
   console.debug('Fetching owned apps from Steam')
-  // Try to load from localStorage first
-  const storedApps = localStorage.getItem('hb-key-exporter-ownedApps')
-  if (storedApps) {
-    return JSON.parse(LZString.decompressFromUTF16(storedApps)) as Array<number>
+  if (!refresh) {
+    // Try to load from localStorage first
+    const storedApps = localStorage.getItem('hb-key-exporter-ownedApps')
+    if (storedApps) {
+      console.debug('Using localStorage owned apps')
+      return JSON.parse(LZString.decompressFromUTF16(storedApps)) as Array<number>
+    }
   }
+
   // If not found, fetch from Steam
   ownedApps = await fetchOwnedApps()
+
   if (!ownedApps) {
     return []
   }
