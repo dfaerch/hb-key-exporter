@@ -15,11 +15,11 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
         new DataTable<Product>(tableRef, {
           columnDefs: [
             {
-              targets: [7, 8],
+              targets: [7, 8], // Purchased and Exp. Date
               render: DataTable.render.date(),
             },
             {
-              targets: [9],
+              targets: [9], // empty actions column
               data: null,
               defaultContent: '',
             },
@@ -72,8 +72,37 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
             { title: 'Gift', data: 'type', type: 'string-utf8' },
             {
               title: 'Revealed',
+              name: 'revealed_summary',
+              className: 'no-searchbuilder', // mark this column for exclusion
+              data: null,
+              searchable: false,
+              render: (_d, _t, row: Product) => {
+                const revealed = row.is_gift || row.redeemed_key_val ? 'Yes' : 'No'
+                return `${revealed} (${row._copies - row._unrevealed} of ${row._copies})`
+              },
+            },
+            {
+              title: 'Revealed', // for SearchBuilder
+              name: 'revealed_raw',
               data: (row: Product) => (row.is_gift || row.redeemed_key_val ? 'Yes' : 'No'),
+              visible: false,
+              searchable: true,
               type: 'string-utf8',
+            },
+
+            {
+              title: 'Copies',
+              data: '_copies',
+              visible: false,
+              searchable: true,
+              type: 'num',
+            },
+            {
+              title: 'Unrevealed',
+              data: '_unrevealed',
+              visible: false,
+              searchable: true,
+              type: 'num',
             },
             { title: 'Owned', data: 'owned', type: 'string-utf8' },
             { title: 'Purchased', data: 'created', type: 'date' },
@@ -172,6 +201,9 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
           data: products,
           layout: {
             top1: 'searchBuilder',
+          },
+          searchBuilder: {
+            columns: ':not(.no-searchbuilder)',
           },
           createdRow: function (row, data: Product) {
             if (data.is_expired) {
