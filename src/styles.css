@@ -23,22 +23,53 @@
   cursor: pointer;
 }
 
-.text_glow {
-  animation: glowFade 5s ease-in-out infinite;
+
+.glowbox{
+  background: hsl(0, 0%, 100%);
+  padding: 16px 24px;
+  position: relative;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.01);
+  background-color: #3c8bc8;
+  color: white;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin: 0 0 ;
+  padding: 1em 5em;
+  text-align: center;
+
+  &::after {
+    position: absolute;
+    content: "";
+    top: 0px;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    height: 100%;
+    width: 100%;
+    transform: scale(0.9) translateZ(0);
+    filter: blur(15px);
+    background: linear-gradient(
+      to left,
+      #2a601e,
+      #c42da8,
+      #9e16c3,
+      #6501de,
+      #9e16c3,
+      #c42da8,
+      #2a601e
+    );
+    background-size: 200% 200%;
+    animation: animateGlow 1.25s linear infinite;
+  }
 }
 
-@keyframes glowFade {
-  0%, 100% {
-    opacity: 0.8;
-    text-shadow:
-      0 0 6px rgba(255, 170, 0, 0.5),
-      0 0 10px rgba(255, 170, 0, 0.3);
+@keyframes animateGlow {
+  0% {
+    background-position: 0% 50%;
   }
-  50% {
-    opacity: 1;
-    text-shadow:
-      0 0 8px rgba(255, 170, 0, 0.8),
-      0 0 14px rgba(255, 170, 0, 0.6);
+  100% {
+    background-position: 200% 50%;
   }
 }
 
