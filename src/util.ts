@@ -42,6 +42,8 @@ export interface Product {
   steam_app_id?: number
   created: string
   keyindex?: number
+  _copies?: number
+  _unrevealed?: number
 }
 
 const getCategory = (category: Order['product']['category']): Product['category'] => {
