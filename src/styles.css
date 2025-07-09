@@ -18,3 +18,27 @@
 #hb_extractor-container .dtsb-titleRow {
   display: none;
 }
+
+.togglehover {
+  cursor: pointer;
+}
+
+.text_glow {
+  animation: glowFade 5s ease-in-out infinite;
+}
+
+@keyframes glowFade {
+  0%, 100% {
+    opacity: 0.8;
+    text-shadow:
+      0 0 6px rgba(255, 170, 0, 0.5),
+      0 0 10px rgba(255, 170, 0, 0.3);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 8px rgba(255, 170, 0, 0.8),
+      0 0 14px rgba(255, 170, 0, 0.6);
+  }
+}
+

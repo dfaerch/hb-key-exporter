@@ -41,8 +41,8 @@ export function App() {
   return (
     <details>
       <summary>
-        <h3>
-          <i class="hb hb-key"></i> Advanced Exporter
+        <h3 class="togglehover">
+          <i class="hb hb-key text_glow"></i> Advanced Exporter
         </h3>
       </summary>
       <div style={{ display: 'flex', 'justify-content': 'end', 'align-items': 'center' }}>
