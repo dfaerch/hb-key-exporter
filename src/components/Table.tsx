@@ -16,7 +16,11 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
           columnDefs: [
             {
               targets: ['purchased:name', 'expiry:name'],
-              render: DataTable.render.date(),
+              render: {
+                _: DataTable.render.date(),
+                filter: (d: string) => d.slice(0, 10), // Extract date from ISO datetime
+                sort: (d: string) => Date.parse(d),
+              },
             },
             {
               targets: 'actions:name',
