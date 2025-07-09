@@ -32,7 +32,7 @@
   border: 1px solid #bababa;
   border-radius: 4px;
   margin: 1em auto;
-  background-color: #e4e7ed;
+  background-color: #f0f2f5;
   transition: background-color 0.5s ease-in-out;
   color: #46474b;
   text-transform: uppercase;
@@ -42,7 +42,7 @@
   text-align: center;
 
   &:hover {
-    background-color: #a1a7b2;
+    background-color: #16c37b;
     color: #ffffff;
   }
 
