@@ -41,10 +41,10 @@ export function App() {
   return (
     <details>
       <summary>
-        <button class="glowbox"
-        <h3 class="togglehover">
-          <i class="hb hb-key"></i> Advanced Exporter
-        </h3>
+        <button class="glowbox">
+          <h3 class="togglehover">
+            <i class="hb hb-key"></i> Advanced Exporter
+          </h3>
         </button>
       </summary>
       <div style={{ display: 'flex', 'justify-content': 'end', 'align-items': 'center' }}>
