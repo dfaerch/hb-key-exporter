@@ -42,7 +42,8 @@
   text-align: center;
 
   &:hover {
-    background-color: #16c37b;
+    background-color: #09bd72;
+    border-color: #36973b;
     color: #ffffff;
   }
 
