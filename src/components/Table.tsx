@@ -182,7 +182,6 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
                             const data = await redeem(row)
                             if (!data.success) {
                               return showToast(data.error_msg || 'Redeem failed', {
-                                type: 'error',
                                 duration: 3200,
                               })
                             }
@@ -190,16 +189,16 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
                               if (data.giftkey) {
                                 return showToast(
                                   'Items has already been gifted. Cannot redeem key.',
-                                  { type: 'error', duration: 3200 }
+                                  { duration: 3200 }
                                 )
                               }
-                              return showToast('No key received', { type: 'error', duration: 3200 })
+                              return showToast('No key received', { duration: 3200 })
                             }
 
                             await navigator.clipboard.writeText(data.link)
                             showToast('Key copied to clipboard')
                           } catch {
-                            showToast('Error retrieving key', { type: 'error', duration: 3200 })
+                            showToast('Error retrieving key', { duration: 3200 })
                           }
                         },
                       },
@@ -215,13 +214,11 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
                             const data = await redeem(row, true)
                             if (!data.success) {
                               return showToast(data.error_msg || 'Failed to create gift link', {
-                                type: 'error',
                                 duration: 5000,
                               })
                             }
                             if (!data.gift_link) {
                               return showToast('No gift link received', {
-                                type: 'error',
                                 duration: 5000,
                               })
                             }
@@ -229,7 +226,7 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
                             await navigator.clipboard.writeText(data.gift_link)
                             showToast('Link copied to clipboard')
                           } catch {
-                            showToast('Error creating gift link', { type: 'error', duration: 5000 })
+                            showToast('Error creating gift link', { duration: 5000 })
                           }
                         },
                       },
