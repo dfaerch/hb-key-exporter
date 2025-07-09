@@ -78,7 +78,9 @@ export function Table({ products, setDt }: { products: Product[]; setDt: Setter<
               searchable: false,
               render: (_d, _t, row: Product) => {
                 const revealed = row.is_gift || row.redeemed_key_val ? 'Yes' : 'No'
-                return `${revealed} (${row._copies - row._unrevealed} of ${row._copies})`
+                return row._copies > 1
+                  ? `${revealed} (${row._copies - row._unrevealed} of ${row._copies})`
+                  : revealed
               },
             },
             {
