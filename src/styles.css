@@ -19,28 +19,34 @@
   display: none;
 }
 
-.togglehover {
+.glowbox:hover {
   cursor: pointer;
+  background: #a1a7b2;
 }
 
-
-.glowbox{
-  background: hsl(0, 0%, 100%);
+.glowbox {
+  display: inline-block;
   padding: 16px 24px;
   position: relative;
+  border: 1px solid #3b3e48;
   border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.01);
-  background-color: #3c8bc8;
-  color: white;
+  margin: 1em auto;
+  background-color: #e4e7ed;
+  transition: background-color 0.5s ease-in-out;
+  color: #3b3e48;
   text-transform: uppercase;
   font-weight: bold;
-  margin: 0 0 ;
+  margin: 0 0;
   padding: 1em 5em;
   text-align: center;
 
+  &:hover {
+    background-color: #a1a7b2;
+  }
+
   &::after {
     position: absolute;
-    content: "";
+    content: '';
     top: 0px;
     left: 0;
     right: 0;
@@ -72,4 +78,3 @@
     background-position: 200% 50%;
   }
 }
-

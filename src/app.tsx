@@ -41,11 +41,9 @@ export function App() {
   return (
     <details>
       <summary>
-        <button class="glowbox">
-          <h3 class="togglehover">
-            <i class="hb hb-key"></i> Advanced Exporter
-          </h3>
-        </button>
+        <h3 class="glowbox">
+          <i class="hb hb-key"></i> Advanced Exporter
+        </h3>
       </summary>
       <div style={{ display: 'flex', 'justify-content': 'end', 'align-items': 'center' }}>
         <Refresh refresh={refresh} />
